@@ -9,6 +9,13 @@ Die konkrete Nutzung des Containers, die Zertifikatserstellung sowie entsprechen
 
 Nur die Umsetzung mit docker-compose wird aufgrund der vorgebenen Zeit vorgstellt und erläutert!
 
+
+## I GIT - Übungsdaten laden
+
+```Bash
+git clone https://github.com/wm87/dasu.git
+```
+
 ## How to install Docker and docker compose on Ubuntu?
 
 https://www.theserverside.com/blog/Coffee-Talk-Java-News-Stories-and-Opinions/How-to-install-Docker-and-docker-compose-on-Ubuntu
@@ -63,6 +70,3 @@ docker exec dasu curl -k --tlsv1.2 --tls-max 1.2 http://localhost/dasu.html -H '
 ```Bash
 docker exec dasu curl -k -L --tlsv1.2 --tls-max 1.2 http://localhost/dasu.html -H 'Content-Type: application/json'
 ```
-# dasu
-# dasu
-# dasu
