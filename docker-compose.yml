@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  dasu:
+    container_name: dasu    # name of container created from image
+    build:
+      context: .                          # path to docker file
+      dockerfile: Dockerfile              # docker file name
+    ports:
+      - "8000:80"
