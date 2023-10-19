@@ -17,10 +17,10 @@ git clone https://github.com/wm87/dasu.git
 ```
 
 ## How to install Docker and docker compose on Ubuntu?
-
-https://www.theserverside.com/blog/Coffee-Talk-Java-News-Stories-and-Opinions/How-to-install-Docker-and-docker-compose-on-Ubuntu
-
-
+```Bash
+cd dasu/
+bash docker_install.sh
+```
 
 ## How start docker-compose?
 
