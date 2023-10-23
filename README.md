@@ -19,6 +19,12 @@ git clone https://github.com/wm87/dasu.git
 ## How to install Docker and docker compose on Ubuntu?
 ```Bash
 cd dasu/
+
+# Docker-Proxy
+export http_proxy="proxy.th-wildau.de:8080"
+export https_proxy="proxy.th-wildau.de:8080"
+
+# Installationsscript
 bash docker_install.sh
 ```
 
