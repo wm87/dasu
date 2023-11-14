@@ -1,24 +1,33 @@
 
-## Absicherung des Apache2-Webservers mittels HTTPS und TLS 1.2
+## Absicherung des Apache2-Webservers mittels HTTPS und TLSv1.2 / TLSv1.3
 
-Für die Ausführung ist eine Docker-Laufzeitumgebung erforderlich.
+`Voraussetzung: Für die Übung ist Ubuntu-VM (ratsam via WSL) erforderlich.`
 
-Für die Übung ist es aufgrund der Komplexität des Themas ratsam den zur Verfügung gestellten Container container_name: dasu zu nutzen.
+`Docker-Installtionsskript liegt dem GIT-Repo bei, die entsprechende Installation wird gezeigt.`
 
 Die konkrete Nutzung des Containers, die Zertifikatserstellung sowie entsprechende Test mit curl bezüglich http und https werden gezeigt.
 
-Nur die Umsetzung mit docker-compose wird aufgrund der vorgebenen Zeit vorgstellt und erläutert!
+`Nur die Umsetzung mit docker-compose wird aufgrund der vorgebenen Zeit vorgstellt und erläutert!`
 
 ***
 
+## Was kann der Container?
 
-## I GIT - Übungsdaten laden
+* `TLS-Absicherung` auf Basis von https://ssl-config.mozilla.org
+* `OpenSSL-Zertifikat generieren / einbinden`
+* `Permanent Redirect nach HTTPS`
+* HTTP/2 aktivieren
+* Verzeichnisauflistungen deaktivieren
+* Serverversion und Betriebssystem ausblenden
+
+
+## Übungsdaten laden
 
 ```Bash
 git clone https://github.com/wm87/dasu.git
 ```
 
-## How to install Docker and docker compose on Ubuntu?
+## docker-compose installieren - Ubuntu
 ```Bash
 cd dasu/
 
@@ -30,7 +39,7 @@ export https_proxy="proxy.th-wildau.de:8080"
 bash docker_install.sh
 ```
 
-## How start docker-compose?
+## Nutzung von docker-compose
 
 Docker-Container bauen und starten:
 ```Bash
@@ -46,37 +55,158 @@ Docker-Container stoppen:
 docker-compose down
 ```
 
-## Terminal Ausgabe HEADER (ohne Docker)
+***
+
+## Testphase - Was testen wir hier eigentlich? ;-)
+
+### Terminal Ausgabe HEADER (ohne Docker)
 ```Bash
 curl -I -k -v --tlsv1.2 --tls-max 1.2 http://localhost/dasu.html
 ```
 ```Bash
-curl -I -k -v -L --tlsv1.2 --tls-max 1.2 http://localhost/dasu.html
+curl -I -k -v -L --tlsv1.3 --tls-max 1.3 http://localhost/dasu.html
 ```
 
-## Docker Ausgabe HEADER - Unterschiede?
+### Docker Ausgabe HEADER - Unterschiede?
 ```Bash
 docker exec dasu curl -I -k -v --tlsv1.2 --tls-max 1.2  https://localhost/dasu.html
 ```
 ```Bash
-docker exec dasu curl -I -k -v -L --tlsv1.2 --tls-max 1.2  http://localhost/dasu.html
+docker exec dasu curl -I -k -v -L --tlsv1.3 --tls-max 1.3  http://localhost/dasu.html
 ```
 
-## Terminal Ausgabe HTML (ohne Docker)
+### Terminal Ausgabe HTML (ohne Docker)
 ```Bash
 curl -k --tlsv1.2 --tls-max 1.2 https://localhost/dasu.html -H 'Content-Type: application/json'
 ```
 
-
-## Docker Ausgabe HTML - Unterschiede?
+### Docker Ausgabe HTML - Unterschiede?
 ```Bash
-docker exec dasu curl -k --tlsv1.2 --tls-max 1.2 https://localhost/dasu.html -H 'Content-Type: application/json'
+docker exec dasu curl -k --tlsv1.3 --tls-max 1.3 https://localhost/dasu.html -H 'Content-Type: application/json'
 ```
 ```Bash
 docker exec dasu curl -k --tlsv1.2 --tls-max 1.2 http://localhost/dasu.html -H 'Content-Type: application/json'
 ```
 ```Bash
-docker exec dasu curl -k -L --tlsv1.2 --tls-max 1.2 http://localhost/dasu.html -H 'Content-Type: application/json'
+docker exec dasu curl -k -L --tlsv1.2 http://localhost/dasu.html -H 'Content-Type: application/json'
+```
+
+***
+
+## Konfiguration
+
+
+### Permanent Redirect - uedasu.conf
+```Bash
+<VirtualHost *:80>
+  ...
+	RewriteEngine On
+	# This will enable the Rewrite capabilities
+
+	RewriteCond %{HTTPS} !=on
+	# This checks to make sure the connection is not already HTTPS
+
+	RewriteRule ^/?(.*) https://%{SERVER_NAME}/$1 [R=301,L]
+	# If you are looking for a 301 Permanent Redirect, then redirect flag should be as
+  ...
+</VirtualHost>
+```
+
+### Verzeichnisauflistungen deaktivieren - uedasu.conf
+
+```Bash
+<IfModule mod_ssl.c>
+<VirtualHost *:443>
+  ...
+  <Directory /var/www/uedasu.com>
+    # Options Indexes FollowSymLinks       # Zeile auskommentieren
+    Options FollowSymLinks                 # Zeile einfügen
+    AllowOverride None
+    Require all granted
+  </Directory>
+  ...
+</VirtualHost>
+</IfModule>
+```
+
+
+### OpenSSL-Zertificate einbinden - uedasu.conf
+```Bash
+<IfModule mod_ssl.c>
+<VirtualHost *:443>
+  ...
+  SSLEngine on
+  SSLCertificateFile /etc/ssl/certs/dasu_server.crt
+  SSLCertificateKeyFile /etc/ssl/private/dasu_private.key
+  ...
+</VirtualHost>
+</IfModule>
+```
+
+### Enable HTTP/2, if available - uedasu.conf
+```Bash
+Protocols h2 http/1.1
+```
+
+### HTTP Strict Transport Security - uedasu.conf
+```Bash
+# HTTP Strict Transport Security (mod_headers is required) (63072000 seconds)
+Header always set Strict-Transport-Security "max-age=63072000"
+```
+
+### Serverversion und Betriebssystem ausblenden - hide_versions.conf
+```Bash
+ServerTokens Prod
+ServerSignature Off
+```
+
+### SSL Configuration Generator - ssl.conf
+```Bash
+...
+# intermediate configuration
+# General-purpose servers with a variety of clients, recommended for almost all systems
+
+SSLProtocol             all -SSLv3 -TLSv1 -TLSv1.1
+SSLCipherSuite          ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-CHACHA20-POLY1305
+SSLHonorCipherOrder     off
+SSLSessionTickets       off
+...
+```
+
+[SSL Configuration Generator](https://ssl-config.mozilla.org/#server=apache&version=2.4.57&config=intermediate&openssl=3.0.10&ocsp=false&guideline=5.7)
+
+***
+
+## Container öffnen
+```Bash
+docker exec -it dasu /bin/bash
+```
+
+## Cipher Kommando
+"Der Befehl "ciphers" konvertiert textuelle OpenSSL-Chiffrenlisten in geordnete SSL-Chiffrenpräferenzlisten. Er kann als Testwerkzeug verwendet werden, um die geeignete Chiffrenliste zu bestimmen." https://www.openssl.org/docs/man1.1.1/man1/ciphers.html
+
+### OpenSSl Ciphers Status "LOW" - im Container
+```Bash
+openssl ciphers -v 'LOW' | grep TLSv1.2
+openssl ciphers -v 'LOW' | grep TLSv1.2 | wc -l
+openssl ciphers -v 'LOW' | grep TLSv1.3
+openssl ciphers -v 'LOW' | grep TLSv1.3 | wc -l
+```
+
+### OpenSSl Ciphers Status "MEDIUM" - im Container
+```Bash
+openssl ciphers -v 'MEDIUM' | grep TLSv1.2
+openssl ciphers -v 'MEDIUM' | grep TLSv1.2 | wc -l
+openssl ciphers -v 'MEDIUM' | grep TLSv1.3
+openssl ciphers -v 'MEDIUM' | grep TLSv1.3 | wc -l
+```
+
+### OpenSSl Ciphers Status "High" - im Container
+```Bash
+openssl ciphers -v 'HIGH' | grep TLSv1.2
+openssl ciphers -v 'HIGH' | grep TLSv1.2 | wc -l
+openssl ciphers -v 'HIGH' | grep TLSv1.3
+openssl ciphers -v 'HIGH' | grep TLSv1.3 | wc -l
 ```
 
 
