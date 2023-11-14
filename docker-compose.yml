@@ -6,5 +6,5 @@ services:
     build:
       context: .                          # path to docker file
       dockerfile: Dockerfile              # docker file name
-    ports:
-      - "8000:80"
+    #ports:
+      #- "8000:80"
