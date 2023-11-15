@@ -1,25 +1,30 @@
+🟥 There's no shame in losing track. Everyone takes the time they need. It is much more important to approach the topic without bias; Interest and motivation usually develop over time. Until then, have fun at work..
+an unknown author .. 🟥
 
-## Absicherung des Apache2-Webservers mittels HTTPS und TLSv1.2 / TLSv1.3
 
-`Voraussetzung: Für die Übung ist Ubuntu-VM (ratsam via WSL) erforderlich.`
-
-`Docker-Installtionsskript liegt dem GIT-Repo bei, die entsprechende Installation wird gezeigt.`
-
-Die konkrete Nutzung des Containers, die Zertifikatserstellung sowie entsprechende Test mit curl bezüglich http und https werden gezeigt.
-
-`Nur die Umsetzung mit docker-compose wird aufgrund der vorgebenen Zeit vorgstellt und erläutert!`
+## Absicherung Apache-Webservers via HTTPS/TLS
+> 🟨 **`Voraussetzung:` Für die Übung ist `Ubuntu-VM` (ratsam via WSL) erforderlich.** 🟨
+> 
+> 🟨 **`Docker-Installtionsskript liegt dem GIT-Repo bei`, die entsprechende Installation wird gezeigt.** 🟨
+> 
+> Die konkrete Nutzung des Containers, die Zertifikatserstellung sowie entsprechende Test mit curl bezüglich http und https werden gezeigt.
+> 
+> 🟨 **`Nur die Umsetzung mit docker-compose wird aufgrund der vorgebenen Zeit vorgstellt und erläutert!`** 🟨
+> 
 
 ***
 
-## Was kann der Container?
+## Was kann der Container? :monocle_face:
 
-* `TLS-Absicherung` auf Basis von https://ssl-config.mozilla.org
-* `OpenSSL-Zertifikat generieren / einbinden`
-* `Permanent Redirect nach HTTPS`
-* HTTP/2 aktivieren
-* Verzeichnisauflistungen deaktivieren
-* Serverversion und Betriebssystem ausblenden
-
+> [!IMPORTANT]
+> * `TLS-Absicherung` auf Basis von https://ssl-config.mozilla.org
+> * `OpenSSL-Zertifikat generieren / einbinden`
+> * `Permanent Redirect nach HTTPS`
+> * HTTP/2 aktivieren
+> * Verzeichnisauflistungen deaktivieren
+> * Serverversion und Betriebssystem ausblenden
+> 
+:+1:
 
 ## Übungsdaten laden
 
@@ -57,7 +62,7 @@ docker-compose down
 
 ***
 
-## Testphase - Was testen wir hier eigentlich? ;-)
+## Testphase - Was testen wir hier eigentlich? :confused:
 
 ### Terminal Ausgabe HEADER (ohne Docker)
 ```Bash
@@ -93,7 +98,7 @@ docker exec dasu curl -k -L --tlsv1.2 http://localhost/dasu.html -H 'Content-Typ
 
 ***
 
-## Konfiguration
+## Konfiguration :nerd_face:
 
 
 ### Permanent Redirect - uedasu.conf
