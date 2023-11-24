@@ -21,6 +21,7 @@ an unknown author .. 🟥
 > * `OpenSSL-Zertifikat generieren / einbinden`
 > * `Permanent Redirect nach HTTPS`
 > * HTTP/2 aktivieren
+> * HTTP Strict Transport Security
 > * Verzeichnisauflistungen deaktivieren
 > * Serverversion und Betriebssystem ausblenden
 > 
